@@ -15,20 +15,8 @@ export const createContact = async (payload) => {
   return contact;
 };
 
-export const updateContact = async (contactId, payload, options = {}) => {
-  const rawResult = await Contact.findOneAndUpdate(
-    {
-      _id: contactId,
-    },
-    payload,
-    {
-      ...options,
-    },
-  );
-  return {
-    contact: rawResult,
-    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-  };
+export const updateContact = async (contactId, payload = {}) => {
+  return Contact.findByIdAndUpdate(contactId, payload, { new: true });
 };
 
 export const deleteContact = async (contactId) => {
