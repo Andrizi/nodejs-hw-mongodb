@@ -5,15 +5,16 @@ function parseSortBy(value) {
     return '_id';
   }
 
-  const keys =
-    ('_id',
+  const keys = [
+    '_id',
     'name',
     'phoneNumber',
     'email',
     'isFavourite',
     'contactType',
     'createdAt',
-    'updatedAt');
+    'updatedAt',
+  ];
 
   if (keys.includes(value) !== true) {
     return '_id';
@@ -35,7 +36,6 @@ function parseSortOrder(value) {
 
 export function parseSortParams(query) {
   const { sortBy, sortOrder } = query;
-
   const parsedSortBy = parseSortBy(sortBy);
   const parsedSortOrder = parseSortOrder(sortOrder);
 

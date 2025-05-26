@@ -13,6 +13,7 @@ export async function getAllContacts({
 
   const contactsQuery = Contact.find();
   console.log(filter);
+  console.log(sortBy, sortOrder);
   if (filter.contactType) {
     contactsQuery.where('contactType').equals(filter.contactType);
   }
