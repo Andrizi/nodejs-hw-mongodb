@@ -8,12 +8,12 @@ export async function getAllContacts({
   sortOrder = SORT_ORDER.ASC,
   sortBy = '_id',
   filter = {},
+  userId,
 }) {
   const skip = page > 0 ? (page - 1) * perPage : 0;
 
-  const contactsQuery = Contact.find();
-  console.log(filter);
-  console.log(sortBy, sortOrder);
+  const contactsQuery = Contact.find({ userId });
+
   if (filter.contactType) {
     contactsQuery.where('contactType').equals(filter.contactType);
   }
@@ -56,7 +56,7 @@ export const updateContact = async (contactId, userId, payload = {}) => {
 export const deleteContact = async (contactId, userId) => {
   const contact = await Contact.findOneAndDelete({
     _id: contactId,
-    owner: userId,
+    userId: userId,
   });
   return contact;
 };
