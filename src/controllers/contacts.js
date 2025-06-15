@@ -1,15 +1,17 @@
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
 import {
+  createContact,
   deleteContact,
   getAllContacts,
   getContactById,
   updateContact,
 } from '../services/contacts.js';
-import { createContact } from '../services/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 export const getContactsControllers = async (req, res, next) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -49,13 +51,34 @@ export const getContactByIdController = async (req, res, next) => {
   });
 };
 
-export const createContactController = async (req, res) => {
-  const contact = await createContact({ ...req.body, userId: req.user.id });
-  res.status(201).json({
-    status: 201,
-    message: 'Successfully created a contact!',
-    data: contact,
-  });
+export const createContactController = async (req, res, next) => {
+  try {
+    const photo = req.file;
+    let photoUrl = null;
+    console.log(photo);
+    try {
+      if (photo) {
+        const localPath = await saveFileToUploadDir(photo);
+        photoUrl = await saveFileToCloudinary(localPath);
+      }
+    } catch {
+      return next(createHttpError(500, 'Failed to upload photo'));
+    }
+
+    const contact = await createContact({
+      ...req.body,
+      userId: req.user.id,
+      photo: photoUrl,
+    });
+
+    res.status(201).json({
+      status: 201,
+      message: 'Successfully created a contact!',
+      data: contact,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const upsertContactController = async (req, res, next) => {
@@ -79,17 +102,37 @@ export const upsertContactController = async (req, res, next) => {
 };
 
 export const patchContactController = async (req, res, next) => {
-  const { contactId } = req.params;
-  const result = await updateContact(contactId, req.user.id, req.body);
-  if (result === null) {
-    next(createHttpError(404, 'Contact not found'));
-    return;
+  try {
+    const { contactId } = req.params;
+    const photo = req.file;
+    let photoUrl;
+
+    if (photo) {
+      try {
+        const localPath = await saveFileToUploadDir(photo);
+        photoUrl = await saveFileToCloudinary(localPath);
+      } catch {
+        return next(createHttpError(500, 'Failed to upload photo'));
+      }
+    }
+
+    const result = await updateContact(contactId, {
+      ...req.body,
+      ...(photoUrl && { photo: photoUrl }),
+    });
+
+    if (!result?.contact) {
+      throw createHttpError(404, 'Contact not found');
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully patched a contact!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({
-    status: 200,
-    message: 'Successfully patched a contact!',
-    data: result,
-  });
 };
 
 export const deleteContactController = async (req, res, next) => {
