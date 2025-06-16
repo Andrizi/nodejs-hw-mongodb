@@ -104,9 +104,9 @@ export const upsertContactController = async (req, res, next) => {
 export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const userId = req.user.id;
     const photo = req.file;
     let photoUrl;
-
     if (photo) {
       try {
         const localPath = await saveFileToUploadDir(photo);
@@ -116,12 +116,12 @@ export const patchContactController = async (req, res, next) => {
       }
     }
 
-    const result = await updateContact(contactId, {
+    const result = await updateContact(contactId, userId, {
       ...req.body,
       ...(photoUrl && { photo: photoUrl }),
     });
 
-    if (!result?.contact) {
+    if (result === null) {
       throw createHttpError(404, 'Contact not found');
     }
 

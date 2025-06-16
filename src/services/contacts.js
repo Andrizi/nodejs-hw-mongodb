@@ -48,7 +48,7 @@ export const createContact = async (payload) => {
 };
 
 export const updateContact = async (contactId, userId, payload = {}) => {
-  return Contact.findOneAndUpdate({ _id: contactId, userId }, payload, {
+  return Contact.findOneAndUpdate({ _id: contactId, userId: userId }, payload, {
     new: true,
   });
 };
