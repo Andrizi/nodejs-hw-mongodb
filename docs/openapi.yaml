@@ -11,6 +11,7 @@ tags:
     description: Operations about contacts
 servers:
   - url: http://localhost:3000
+  - url: https://nodejs-hw-mongodb-hw7-e3ep.onrender.com
 
 paths:
   /contacts:
