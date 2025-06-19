@@ -1,0 +1,74 @@
+tags:
+  - Contacts
+summary: Update a contact by ID
+operationId: updateContact
+description: Updates information for a specific contact by ID.
+security:
+  - bearerAuth: []
+
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+
+requestBody:
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        properties:
+          name:
+            description: "Contact's name"
+            type: string
+            example: 'John Doe'
+          phoneNumber:
+            description: "Contact's phone number"
+            type: string
+            example: '+380501234567'
+          contactType:
+            description: "Contact's contact type"
+            type: string
+            enum: ['work', 'home', 'personal']
+            example: personal
+          email:
+            description: "Contact's email"
+            type: string
+            example: 'JohnDoe@gmail.com'
+          isFavourite:
+            description: 'Whether contact is marked as favourite'
+            type: boolean
+            example: false
+          photo:
+            description: "Contact's photo file"
+            type: string
+            format: binary
+            example: https://res.cloudinary.com/dxgvxboqq/image/upload/v1750099401/contacts/zrrqnfyfzka8kg9z2cd4.jpg
+responses:
+  '200':
+    description: 'Successfully patched a contact!'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully patched a contact!
+            data:
+              type: object
+              $ref: '../../../components/schemas/contact.yaml'
+  '401':
+    $ref: ../../../components/responses/401.yaml
+  '404':
+    $ref: '../../../components/responses/404.yaml'
+  '500':
+    $ref: '../../../components/responses/500.yaml'

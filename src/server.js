@@ -10,6 +10,7 @@ import authRouter from './routers/auth.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/auth.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 dotenv.config();
 
@@ -25,7 +26,6 @@ export const setupServer = async () => {
     }),
   );
   app.use(cors());
-
   app.use(pino());
 
   app.get('/', (req, res) => {
@@ -34,9 +34,9 @@ export const setupServer = async () => {
 
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
+  app.use('/api-docs', swaggerDocs());
 
   app.use(errorHandler);
-
   app.use(notFoundHandler);
 
   app.listen(PORT || 3000, () => {
